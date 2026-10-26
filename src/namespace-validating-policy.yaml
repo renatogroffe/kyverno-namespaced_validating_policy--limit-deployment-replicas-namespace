@@ -1,0 +1,19 @@
+apiVersion: policies.kyverno.io/v1
+kind: NamespacedValidatingPolicy
+metadata:
+  name: limit-deployment-replicas-namespace
+  namespace: testeskyverno-02
+spec:
+  validationActions: [Deny]
+  evaluation:
+    background:
+      enabled: true
+  matchConstraints:
+    resourceRules:
+      - apiGroups: ["apps"]
+        apiVersions: ["v1"]
+        operations: ["CREATE", "UPDATE"]
+        resources: ["deployments"]
+  validations:
+    - expression: "!has(object.spec.replicas) || object.spec.replicas <= 5"
+      message: "Deployments em testeskyverno-02 não podem ter mais de 5 réplicas."
